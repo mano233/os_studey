@@ -21,9 +21,9 @@ set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Quick)
 # QT6
 #set(REQUIRED_LIBS Core Gui Widgets Quick)
 #set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Quick)
-
-include_directories(src/header)
-add_executable(${PROJECT_NAME} main.cpp src/TaskManager.cpp src/Filewatcher.cpp src/header/Filewatcher.h)
+set(MOC_FILE src/include/Filewatcher.h src/include/ProdConsService.h)
+include_directories(src/include)
+add_executable(${PROJECT_NAME} main.cpp src/TaskManager.cpp src/Filewatcher.cpp ${MOC_FILE} src/ProdConsService.cpp)
 add_executable(test test/Test.cpp)
 add_executable(p test.cpp)
 target_link_libraries(test gtest)

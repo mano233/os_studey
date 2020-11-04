@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QString>
 #include <utility>
-#include "header/Filewatcher.h"
+#include "Filewatcher.h"
 
 /**
  * @brief FileWatcher::FileWatcher
