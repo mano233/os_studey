@@ -5,8 +5,6 @@
 #ifndef UNTITLED3_CYCLEQUEUE_H
 #define UNTITLED3_CYCLEQUEUE_H
 
-#include <exception>
-
 template<class T>
 class CycleQueue {
 private:
