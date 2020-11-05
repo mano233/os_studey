@@ -35,16 +35,6 @@ void producer_worker(ProdConsService2 *ts, int id) {
 
 ProdConsService2::ProdConsService2(QObject *parent) : QObject(parent) {
     q = new CycleQueue<int>(maxSize);
-    // spawn 2 consumers and 2 producers:
-    for (int i = 0; i < 1; ++i) {
-        consumers[i] = std::thread(consumer_worker, this);
-        producers[i] = std::thread(producer_worker, this, i + 1);
-    }
-    // join them back: (in this program, never join...)
-    for (int i = 0; i < 1; ++i) {
-        producers[i].detach();
-        consumers[i].detach();
-    }
     mtx.lock();
 }
 
@@ -61,6 +51,16 @@ void ProdConsService2::unlock_producer() {
 }
 
 void ProdConsService2::start() {
+    // spawn 2 consumers and 2 producers:
+    for (int i = 0; i < 1; ++i) {
+        consumers[i] = std::thread(consumer_worker, this);
+        producers[i] = std::thread(producer_worker, this, i + 1);
+    }
+    // join them back: (in this program, never join...)
+    for (int i = 0; i < 1; ++i) {
+        producers[i].detach();
+        consumers[i].detach();
+    }
     mtx.unlock();
 }
 

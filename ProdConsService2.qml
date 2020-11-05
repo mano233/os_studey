@@ -3,23 +3,52 @@ import QtQuick.Controls 1.1
 import com.mano.ProdConsService2 1.0
 
 Rectangle {
-    property double lastConX;
-    property double lastProdX;
     Component {
         id: contactDelegate
         Rectangle {
+            id:cir_box;
             width: 50
             height: 50
             color: "white"
             border.color: "black"
             border.width: 1;
             Rectangle{
-                anchors.verticalCenter:parent.verticalCenter;
-                anchors.horizontalCenter:parent.horizontalCenter;
-                visible:vis;
+                id:cir;
+                anchors.centerIn:cir_box.centerIn;
+                opacity:0;
+                visible:true;
+                radius:width/2;
+                transitions:[
+                    Transition {
+                        from: "*"; to: "show";
+                        NumberAnimation {
+                            properties: "opacity";
+                            easing.type: Easing.InOutQuad;
+                            duration: 400;
+                        }
+                    },
+                    Transition {
+                        from: "show"; to: "hidden";
+                        NumberAnimation {
+                            properties: "opacity";
+                            easing.type: Easing.InOutQuad;
+                            duration: 400;
+                        }
+                    }
+                    
+                ]
                 color:'red';
-                opacity:1;
                 width:30;
+                states: [
+                    State {
+                        name: "hidden";
+                        PropertyChanges{target:cir;opacity:0.0;}
+                    },
+                    State {
+                        name: "show";
+                        PropertyChanges{target:cir;opacity:1.0;}
+                    }
+                ]
                 height:30;
             }
         }
@@ -30,43 +59,33 @@ Rectangle {
         id: contactModel
         ListElement {
             index:0;
-            vis:false;
         }
         ListElement {
             index:1;
-            vis:false;
         }
         ListElement {
             index:2
-            vis:false;
         }
         ListElement {
             index:3;
-            vis:false;
         }
         ListElement {
             index:4;
-            vis:false;
         }
         ListElement {
             index:5;
-            vis:false;
         }
         ListElement {
             index:6;
-            vis:false;
         }
         ListElement {
             index:7;
-            vis:false;
         }
         ListElement {
             index:8;
-            vis:false;
         }
         ListElement {
             index:9;
-            vis:false;
         }
     }
 
@@ -95,7 +114,6 @@ Rectangle {
         id: prodAnima;
         target: box;
         property: "x";
-        from:lastProdX;
         duration: 500;
         onStarted:()=>{
             service.lock_producer();
@@ -109,7 +127,6 @@ Rectangle {
         id: conAnima;
         target: box1;
         property: "x";
-        from:lastConX;
         duration: 500;
         onStarted:()=>{
             service.lock_consumer();
@@ -137,16 +154,18 @@ Rectangle {
         target: service;
         // 消费时触发
         function onFrontChanged(index){
-            lastConX = box1.x;
-            contactModel.set(index,{vis:false});
-            conAnima.to =listView.itemAtIndex(index).x;
+            // contactModel.set(index,{vis:false});
+            let item = listView.itemAtIndex(index);
+            item.children[0].state = 'hidden';
+            conAnima.to = item.x;
             conAnima.start();
         }
         // 生产时触发
         function onRealChanged(index){
-            lastProdX = box.x;
-            contactModel.set(index,{vis:true});
-            prodAnima.to = listView.itemAtIndex(index).x;
+            // contactModel.set(index,{vis:true});
+            let item = listView.itemAtIndex(index);
+            item.children[0].state = 'show';
+            prodAnima.to = item.x;
             prodAnima.start();
         }
     }
