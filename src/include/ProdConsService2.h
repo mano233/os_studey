@@ -49,8 +49,9 @@ private:
     bool stop_consumer = false;
     bool quit = false;
     bool stop_producer = false;
-    CycleQueue<int> *q;
+    CycleQueue<int> *q = nullptr;
     int maxSize = 10;
+    bool isStart = false;
     std::thread consumers[2], producers[2];
 };
 

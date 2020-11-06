@@ -1,9 +1,17 @@
+// import QtQuick 2.15
+// import QtQuick.Controls 1.0
+// import QtQuick.Window 2.15
+// import com.mano.ProdConsService2 1.0
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls 
+import QtQuick.Window
+import com.mano.ProdConsService2
 
-import com.mano.ProdConsService2 1.0
-
-Rectangle {
+Window {
+    visible:true;
+    ProdConsService2 {
+        id: service;
+    }
     component Box_s:Rectangle{
         width: 50;height: 50;
         color: "white"
@@ -37,17 +45,16 @@ Rectangle {
                             duration: 200;
                         }
                     }
-                    
                 ]
             states: [
-                    State {
-                        name: "hidden";
-                        PropertyChanges{target:cir;opacity:0.0;color:'blue'}
-                    },
-                    State {
-                        name: "show";
-                        PropertyChanges{target:cir;opacity:1.0;color:'red'}
-                    }
+                State {
+                    name: "hidden";
+                    PropertyChanges{target:cir;opacity:0.0;color:'blue'}
+                },
+                State {
+                    name: "show";
+                    PropertyChanges{target:cir;opacity:1.0;color:'red'}
+                }
             ]
 
         }
@@ -55,6 +62,8 @@ Rectangle {
     Row{
         id:row;
         spacing:2;
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
         Box_s{}
         Box_s{}
         Box_s{}
@@ -65,18 +74,46 @@ Rectangle {
         Box_s{}
         Box_s{}
         Box_s{}
-        
+        Item{
+            id:box1;
+            anchors.bottom:parent.top;
+            anchors.bottomMargin:35;
+            x:20;
+            Text{
+                x:width+12;
+                y:-6;
+                text:'消费者';
+            }
+            Image{
+                rotation:180;
+                width:50;
+                fillMode: Image.PreserveAspectFit;
+                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
+            }
+        }
+        Item{
+            id:box;
+            x:-20;
+            anchors.top:parent.bottom;
+            Text{
+                x:-width;
+                y:20;
+                text:'生产者';
+            }
+            Image{
+                width:50;
+                fillMode: Image.PreserveAspectFit;
+                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
+            }
+        }
+
     }
     Button {
         id:btn
         text:"start"
-        onClicked: () => {
+        onClicked: {
                 service.start();
         }
-    }
-    
-    ProdConsService2 {
-        id: service;
     }
 
     PropertyAnimation {
@@ -106,51 +143,56 @@ Rectangle {
             service.unlock_consumer();
         }
     }
+    // 这种方式链接没有问题
+    Component.onCompleted:{
+        service.onFrontChanged.connect(onFrontChanged);
+        service.onRealChanged.connect(onRealChanged);
+    }
+    // 使用这种方式链接，view.load()的时候会报错 EXC_BAD_ACCESS
+    // Connections {
+    //     target: service;
+    //     // 消费时触发
+    //     function onFrontChanged(index){
+    //         let item = row.children[index];
+    //         let cir = item.children[0];
+    //         cir.state = 'hidden';
+    //         // let item = listView.itemAtIndex(index);
+    //         // item.children[0].state = 'hidden';
+    //         conAnima.to = item.x+25;
+    //         conAnima.start();
+    //     }
+    //     // 生产时触发
+    //     function onRealChanged(index){
+    //          let item = row.children[index];
+    //         let cir = item.children[0];
+    //         cir.state = 'show';
+    //         // let item = listView.itemAtIndex(index);
+    //         // item.children[0].state = 'show';
+    //         prodAnima.to = item.x-25;
+    //         prodAnima.start();
+    //     }
+    // }
 
-    Rectangle {
-        id:box1
-        width: 20; height: 20;
-        y: 60;
-        opacity:0.5;
-        color:'blue';
+    // 消费时触发
+    function onFrontChanged(index){
+        let item = row.children[index];
+        let cir = item.children[0];
+        cir.state = 'hidden';
+        // let item = listView.itemAtIndex(index);
+        // item.children[0].state = 'hidden';
+        conAnima.to = item.x+25;
+        conAnima.start();
     }
-    Item{
-        id:box;
-        y:100;
-        Label {
-            text:'生产者';
-            y:20;
-            x:-width;
-        }
-        Image{
-            id:box_sour
-            width:50;
-            fillMode: Image.PreserveAspectFit;
-            source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
-        }
-    }
-    Connections {
-        target: service;
-        // 消费时触发
-        function onFrontChanged(index){
-            let item = row.children[index];
-            let cir = item.children[0];
-            cir.state = 'hidden';
-            // let item = listView.itemAtIndex(index);
-            // item.children[0].state = 'hidden';
-            conAnima.to = item.x+25;
-            conAnima.start();
-        }
-        // 生产时触发
-        function onRealChanged(index){
-             let item = row.children[index];
-            let cir = item.children[0];
-            cir.state = 'show';
-            // let item = listView.itemAtIndex(index);
-            // item.children[0].state = 'show';
-            prodAnima.to = item.x-25;
-            prodAnima.start();
-        }
+
+    // 生产时触发
+    function onRealChanged(index){
+        let item = row.children[index];
+        let cir = item.children[0];
+        cir.state = 'show';
+        // let item = listView.itemAtIndex(index);
+        // item.children[0].state = 'show';
+        prodAnima.to = item.x-25;
+        prodAnima.start();
     }
 
 }

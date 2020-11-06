@@ -12,20 +12,19 @@
 #include <QDir>
 
 int main(int argc, char* argv[]){
-    QGuiApplication app(argc, argv);
     QQuickWindow::setGraphicsApi(QSGRendererInterface::MetalRhi);
+    // QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
+    QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
+
     qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0, "ProdConsService2");
-    ProdConsService2 p2;
-    QQuickView view;
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
-    view.setWidth(720);
-    view.setHeight(480);
-    view.setSource(QUrl("file:/Users/mano233/Documents/c_projects/untitled3/ProdConsService2.qml"));
-    view.show();
-    // QQmlComponent component(&engine,QUrl("file:/Users/mano233/Documents/c_projects/untitled3/ProdConsService2.qml"));
-    // QObject *object = component.create();
-    QObject::connect(view.engine(), SIGNAL(quit()), &app, SLOT(quit()));
-    //QObject::connect(object,SIGNAL(qmlSignal()),&p2,SLOT(qmlSlot()));
-    return QGuiApplication::exec();
+    const QUrl url("file:/Users/mano233/Documents/c_projects/untitled3/ProdConsService2.qml");
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+                if (!obj && url == objUrl)
+                    QCoreApplication::exit(-1);
+            }, Qt::QueuedConnection);
+    engine.clearComponentCache();
+    engine.load(url);
+    return app.exec();
 }

@@ -51,6 +51,10 @@ void ProdConsService2::unlock_producer() {
 }
 
 void ProdConsService2::start() {
+    if(isStart){
+        return;
+    }
+    isStart = true;
     // spawn 2 consumers and 2 producers:
     for (int i = 0; i < 1; ++i) {
         consumers[i] = std::thread(consumer_worker, this);
