@@ -13,12 +13,14 @@
 
 int main(int argc, char* argv[]){
     QGuiApplication app(argc, argv);
-    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::MetalRhi);
     QQmlApplicationEngine engine;
     qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0, "ProdConsService2");
     ProdConsService2 p2;
     QQuickView view;
     view.setResizeMode(QQuickView::SizeRootObjectToView);
+    view.setWidth(720);
+    view.setHeight(480);
     view.setSource(QUrl("file:/Users/mano233/Documents/c_projects/untitled3/ProdConsService2.qml"));
     view.show();
     // QQmlComponent component(&engine,QUrl("file:/Users/mano233/Documents/c_projects/untitled3/ProdConsService2.qml"));

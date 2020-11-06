@@ -1,28 +1,25 @@
-import QtQuick 2.15
-import QtQuick.Controls 1.1
+import QtQuick
+import QtQuick.Controls
+
 import com.mano.ProdConsService2 1.0
 
 Rectangle {
-    Component {
-        id: contactDelegate
-        Rectangle {
-            id:cir_box;
-            width: 50
-            height: 50
-            color: "white"
-            border.color: "black"
-            border.width: 1;
-            Rectangle{
-                id:cir;
-                anchors.centerIn:cir_box.centerIn;
-                opacity:0;
-                visible:true;
-                radius:width/2;
-                transitions:[
+    component Box_s:Rectangle{
+        width: 50;height: 50;
+        color: "white"
+        border.color: "black"
+        border.width: 1;
+        Rectangle{
+            id:cir;
+            x:10;y:10;
+            opacity:0;
+            radius:width/2;
+            color:'red';width:30;height:30;
+            transitions:[
                     Transition {
                         from: "*"; to: "show";
                         NumberAnimation {
-                            properties: "opacity";
+                            property: "opacity";
                             easing.type: Easing.InOutQuad;
                             duration: 400;
                         }
@@ -30,74 +27,46 @@ Rectangle {
                     Transition {
                         from: "show"; to: "hidden";
                         NumberAnimation {
-                            properties: "opacity";
+                            property: "opacity";
                             easing.type: Easing.InOutQuad;
                             duration: 400;
+                        }
+                        ColorAnimation {
+                            property: "color";
+                            easing.type: Easing.InOutQuad;
+                            duration: 200;
                         }
                     }
                     
                 ]
-                color:'red';
-                width:30;
-                states: [
+            states: [
                     State {
                         name: "hidden";
-                        PropertyChanges{target:cir;opacity:0.0;}
+                        PropertyChanges{target:cir;opacity:0.0;color:'blue'}
                     },
                     State {
                         name: "show";
-                        PropertyChanges{target:cir;opacity:1.0;}
+                        PropertyChanges{target:cir;opacity:1.0;color:'red'}
                     }
-                ]
-                height:30;
-            }
+            ]
+
         }
+    }
+    Row{
+        id:row;
+        spacing:2;
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
+        Box_s{}
         
     }
-
-    ListModel {
-        id: contactModel
-        ListElement {
-            index:0;
-        }
-        ListElement {
-            index:1;
-        }
-        ListElement {
-            index:2
-        }
-        ListElement {
-            index:3;
-        }
-        ListElement {
-            index:4;
-        }
-        ListElement {
-            index:5;
-        }
-        ListElement {
-            index:6;
-        }
-        ListElement {
-            index:7;
-        }
-        ListElement {
-            index:8;
-        }
-        ListElement {
-            index:9;
-        }
-    }
-
-    ListView {
-        id:listView;
-        anchors.fill: parent
-        model: contactModel
-        orientation:ListView.Horizontal
-        spacing:20
-        delegate: contactDelegate
-    }
-
     Button {
         id:btn
         text:"start"
@@ -113,6 +82,7 @@ Rectangle {
     PropertyAnimation {
         id: prodAnima;
         target: box;
+        easing.type: Easing.InOutQuad;
         property: "x";
         duration: 500;
         onStarted:()=>{
@@ -136,13 +106,7 @@ Rectangle {
             service.unlock_consumer();
         }
     }
-    Rectangle {
-        id:box
-        width: 20; height: 20;
-        opacity:0.5;
-        y:160;
-        color:'red';
-    }
+
     Rectangle {
         id:box1
         width: 20; height: 20;
@@ -150,22 +114,41 @@ Rectangle {
         opacity:0.5;
         color:'blue';
     }
+    Item{
+        id:box;
+        y:100;
+        Label {
+            text:'生产者';
+            y:20;
+            x:-width;
+        }
+        Image{
+            id:box_sour
+            width:50;
+            fillMode: Image.PreserveAspectFit;
+            source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
+        }
+    }
     Connections {
         target: service;
         // 消费时触发
         function onFrontChanged(index){
-            // contactModel.set(index,{vis:false});
-            let item = listView.itemAtIndex(index);
-            item.children[0].state = 'hidden';
-            conAnima.to = item.x;
+            let item = row.children[index];
+            let cir = item.children[0];
+            cir.state = 'hidden';
+            // let item = listView.itemAtIndex(index);
+            // item.children[0].state = 'hidden';
+            conAnima.to = item.x+25;
             conAnima.start();
         }
         // 生产时触发
         function onRealChanged(index){
-            // contactModel.set(index,{vis:true});
-            let item = listView.itemAtIndex(index);
-            item.children[0].state = 'show';
-            prodAnima.to = item.x;
+             let item = row.children[index];
+            let cir = item.children[0];
+            cir.state = 'show';
+            // let item = listView.itemAtIndex(index);
+            // item.children[0].state = 'show';
+            prodAnima.to = item.x-25;
             prodAnima.start();
         }
     }
