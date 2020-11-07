@@ -9,6 +9,7 @@
 #include <QtGui/QColor>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <iostream>
 #include "CycleQueue.h"
 

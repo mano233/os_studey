@@ -25,13 +25,13 @@ set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Quick Qt6::Quic
 
 set(MOC_FILE src/include/Filewatcher.h src/include/ProdConsService2.h)
 include_directories(src/include)
-add_executable(${PROJECT_NAME} main.cpp src/TaskManager.cpp src/Filewatcher.cpp ${MOC_FILE})
-add_executable(test test/Test.cpp)
-add_executable(p test.cpp src/include/ProdConsService2.h src/ProdConsService2.cpp)
-target_link_libraries(test gtest)
+add_executable(${PROJECT_NAME} main.cpp src/TaskManager.cpp src/Filewatcher.cpp src/ProdConsService2.cpp ${MOC_FILE})
+#add_executable(test test/Test.cpp)
+#add_executable(p test.cpp src/include/ProdConsService2.h src/ProdConsService2.cpp)
+#target_link_libraries(test gtest)
 
 find_package(Qt6 COMPONENTS ${REQUIRED_LIBS} REQUIRED)
 #find_package(Qt5 COMPONENTS ${REQUIRED_LIBS} REQUIRED)
-
 target_link_libraries(${PROJECT_NAME} ${REQUIRED_LIBS_QUALIFIED})
-target_link_libraries(p ${REQUIRED_LIBS_QUALIFIED})
+target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG>)
+#target_link_libraries(p ${REQUIRED_LIBS_QUALIFIED})

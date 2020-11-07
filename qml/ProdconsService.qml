@@ -1,14 +1,17 @@
 // import QtQuick 2.15
 // import QtQuick.Controls 1.0
 // import QtQuick.Window 2.15
-// import com.mano.ProdConsService2 1.0
+// import com.mano.ProdConsService2
 import QtQuick
 import QtQuick.Controls 
 import QtQuick.Window
-import com.mano.ProdConsService2
+import com.mano.ProdConsService2 1.0
 
 Window {
     visible:true;
+    width:720;
+    height:640;
+    property var stop_prod_checked:false;
     ProdConsService2 {
         id: service;
     }
@@ -19,7 +22,7 @@ Window {
         border.width: 1;
         Rectangle{
             id:cir;
-            x:10;y:10;
+            x:10;
             opacity:0;
             radius:width/2;
             color:'red';width:30;height:30;
@@ -27,7 +30,7 @@ Window {
                     Transition {
                         from: "*"; to: "show";
                         NumberAnimation {
-                            property: "opacity";
+                            properties: "opacity,y";
                             easing.type: Easing.InOutQuad;
                             duration: 400;
                         }
@@ -35,7 +38,7 @@ Window {
                     Transition {
                         from: "show"; to: "hidden";
                         NumberAnimation {
-                            property: "opacity";
+                            properties: "opacity,y";
                             easing.type: Easing.InOutQuad;
                             duration: 400;
                         }
@@ -49,11 +52,11 @@ Window {
             states: [
                 State {
                     name: "hidden";
-                    PropertyChanges{target:cir;opacity:0.0;color:'blue'}
+                    PropertyChanges{target:cir;opacity:0.0;color:'blue';y:-20;}
                 },
                 State {
                     name: "show";
-                    PropertyChanges{target:cir;opacity:1.0;color:'red'}
+                    PropertyChanges{target:cir;opacity:1.0;color:'red';y:20;}
                 }
             ]
 
@@ -108,13 +111,26 @@ Window {
         }
 
     }
-    Button {
-        id:btn
-        text:"start"
-        onClicked: {
+    Column{
+        Button {
+            text:"start"
+            onClicked: {
                 service.start();
+            }
+        }
+        Switch {
+            text: qsTr("锁定生产者")
+            onToggled:{
+                if(checked){
+                    prodAnima.complete();
+                    service.lock_producer();
+                }else{
+                    service.unlock_producer();
+                }
+            }
         }
     }
+    
 
     PropertyAnimation {
         id: prodAnima;
@@ -122,11 +138,10 @@ Window {
         easing.type: Easing.InOutQuad;
         property: "x";
         duration: 500;
-        onStarted:()=>{
+        onStarted:{
             service.lock_producer();
-
         }
-        onFinished: () => {
+        onFinished:{
             service.unlock_producer();
         }
     }
@@ -143,35 +158,11 @@ Window {
             service.unlock_consumer();
         }
     }
-    // 这种方式链接没有问题
+
     Component.onCompleted:{
         service.onFrontChanged.connect(onFrontChanged);
         service.onRealChanged.connect(onRealChanged);
     }
-    // 使用这种方式链接，view.load()的时候会报错 EXC_BAD_ACCESS
-    // Connections {
-    //     target: service;
-    //     // 消费时触发
-    //     function onFrontChanged(index){
-    //         let item = row.children[index];
-    //         let cir = item.children[0];
-    //         cir.state = 'hidden';
-    //         // let item = listView.itemAtIndex(index);
-    //         // item.children[0].state = 'hidden';
-    //         conAnima.to = item.x+25;
-    //         conAnima.start();
-    //     }
-    //     // 生产时触发
-    //     function onRealChanged(index){
-    //          let item = row.children[index];
-    //         let cir = item.children[0];
-    //         cir.state = 'show';
-    //         // let item = listView.itemAtIndex(index);
-    //         // item.children[0].state = 'show';
-    //         prodAnima.to = item.x-25;
-    //         prodAnima.start();
-    //     }
-    // }
 
     // 消费时触发
     function onFrontChanged(index){

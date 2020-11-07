@@ -112,5 +112,4 @@ Rectangle {
         function onColorChanged(color){
             colorRect.color = color;
         }
-    }
 }
