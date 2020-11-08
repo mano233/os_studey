@@ -8,9 +8,7 @@
         ts->consume.wait(lck, [&] { return !ts->stop_consumer && !ts->q->isEmpty(); });
         cout << "consumer " << this_thread::get_id() << ": " << endl;
         ts->q->pop();
-        lck.unlock();
         emit ts->frontChanged(ts->q->m_front);
-
         // nodity(wake up) producer when q.size() != maxSize is true
         ts->produce.notify_all();
 
@@ -29,7 +27,6 @@ void producer_worker(ProdConsService2 *ts, int id) {
              << ts->q->m_rear
              << endl;
         ts->q->push(id);
-        lck.unlock();
         emit ts->realChanged(ts->q->m_rear);
         // notify(wake up) consumer when q.size() != 0 is true
         ts->consume.notify_all();
@@ -50,6 +47,7 @@ void ProdConsService2::lock_producer() {
 }
 
 void ProdConsService2::unlock_producer() {
+    mtx.unlock();
     stop_producer = false;
 }
 
@@ -76,6 +74,7 @@ void ProdConsService2::lock_consumer() {
 }
 
 void ProdConsService2::unlock_consumer() {
+    mtx.unlock();
     stop_consumer = false;
 }
 

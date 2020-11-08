@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0, "ProdConsService2");
-    const QUrl url("../qml/ProdconsService.qml");
+    const QUrl url("qrc:/qml/ProdconsService.qml");
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
                 if (!obj && url == objUrl)

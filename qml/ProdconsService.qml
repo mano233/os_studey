@@ -23,6 +23,7 @@ Window {
         Rectangle{
             id:cir;
             x:10;
+            y:-20;
             opacity:0;
             radius:width/2;
             color:'red';width:30;height:30;
@@ -56,7 +57,7 @@ Window {
                 },
                 State {
                     name: "show";
-                    PropertyChanges{target:cir;opacity:1.0;color:'red';y:20;}
+                    PropertyChanges{target:cir;opacity:1.0;color:'red';y:10;}
                 }
             ]
 
@@ -88,10 +89,18 @@ Window {
                 text:'消费者';
             }
             Image{
+                id:icon
                 rotation:180;
                 width:50;
                 fillMode: Image.PreserveAspectFit;
-                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
+                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg';
+                ShaderEffect {
+                    property variant src: icon
+                    anchors.fill: parent
+                    //width: 100; height: 100
+                    //vertexShader: "file:/Users/mano233/Documents/c_projects/untitled3/qml/shader.vert.qsb"
+                    fragmentShader: "qrc:/shader.frag.qsb"
+                }
             }
         }
         Item{
@@ -131,7 +140,6 @@ Window {
         }
     }
     
-
     PropertyAnimation {
         id: prodAnima;
         target: box;
