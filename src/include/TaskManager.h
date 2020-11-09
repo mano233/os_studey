@@ -2,52 +2,43 @@
 #define UNTITLED3_TASKMANAGER_H
 
 #include <list>
+#include <CycleQueue.h>
 #include <queue>
-
+#include <QObject>
+#include <QDir>
+#include <QTimer>
+#include <QString>
 using namespace std;
 
 struct PCB{
-    unsigned        pid;
-    const char*     name;
-    unsigned        cpu_time;
-    unsigned        time;
-    unsigned        p;
+    unsigned int      pid;        //线程id
+    const    char*    name;       //线程名
+    unsigned int      cpu_time;   //时间片
+    unsigned int      time;
+    unsigned int      p;          //优先级
 };
 
-class PCBPool{
-private:
-    queue<PCB> pool;
+class TaskManager: public QObject {
+Q_OBJECT
+signals:
+    void update();
 public:
-    explicit PCBPool(size_t size){
-        for(unsigned i=0;i<size;++i)
-            pool.push(PCB{i});
-    }
-    PCB get(){
-        PCB temp = pool.front();
-        pool.pop();
-        return temp;
-    }
-    PCB set(PCB temp);
-};
-
-class TaskManager {
-public:
-    explicit TaskManager(int id);
-    ~TaskManager();
+    explicit TaskManager(QObject *parent = nullptr);
+    ~TaskManager() override;
     void dispatch();
-    void create(const char* name,size_t p,size_t cpu_time);
+    void create(const char *name, unsigned int p, unsigned int cpu_time);
     void destroy(unsigned pid);
     void block(unsigned pid);
     void ready(unsigned pid);
     void wakeup(unsigned pid);
 private:
-    PCBPool *pcbPool;
+    unsigned int pid;
     list<PCB> all_pcb;
     list<PCB> ready_queue;
     queue<PCB> block_queue;
     queue<PCB> dead_queue;
     queue<PCB> wake_queue;
-    PCB current{};
+    PCB *current;
 private:
 
 };

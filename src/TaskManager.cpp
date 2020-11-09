@@ -1,26 +1,37 @@
 #include <iostream>
 #include "TaskManager.h"
+#include <thread>
 
-TaskManager::~TaskManager() = default;
 void TaskManager::dispatch() {
-    for(int i=0;i<10;++i){
-        PCB temp{};
-        temp.p = i;
-        ready_queue.push_back( temp);
-    }
-    ready_queue.sort([](PCB const &a,PCB const &b){
+    ready_queue.sort([&](const PCB a,const PCB b){
         return a.p-b.p;
     });
-    current = ready_queue.front();
-    ready_queue.pop_front();
-    std::cout<<current.p<<'\n';
+    current = &ready_queue.front();
+    // run
+    cout<<current->pid<<'['<<current->time<<']'<<current->p<<endl;
+    this_thread::sleep_for(chrono::seconds (1));
+    current->time--;
+    current->p--;
+    if(current->time==0||current->p==0){
+        ready_queue.pop_front();
+        dead_queue.push(*current);
+        return;
+    }
+
+
 }
 
-TaskManager::TaskManager(int id) {
-    pcbPool = new PCBPool(20);
-    PCB temp = pcbPool->get();
-    temp.p = 11231;
+TaskManager::TaskManager(QObject *parent) : QObject(parent) {
+    pid=0;
+    current= nullptr;
 }
 
-void TaskManager::create(const char *name, size_t p, size_t cpu_time) {
+void TaskManager::create(const char *name, unsigned int p, unsigned int cpu_time) {
+    PCB temp{pid++,name,cpu_time,10,p};
+    all_pcb.push_back(temp);
+    ready_queue.push_back(temp);
+}
+
+TaskManager::~TaskManager() {
+
 }
