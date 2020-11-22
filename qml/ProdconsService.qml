@@ -60,6 +60,20 @@ Window {
 
         }
     }
+    Rectangle {
+        id: rotatingBox
+        width: 50
+        height: 50
+        color: "lightsteelblue"
+        RotationAnimator {
+            target: rotatingBox;
+            from: 0;
+            to: 360;
+            duration: 1000
+            loops: Animation.Infinite
+            running: true
+        }
+    }
     Row{
         id:row;
         spacing:2;
@@ -91,7 +105,7 @@ Window {
                 rotation:180;
                 width:50;
                 fillMode: Image.PreserveAspectFit;
-                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg';
+                source:'qrc:/arrow.svg';
                 ShaderEffect {
                     property variant src: icon
                     anchors.fill: parent
@@ -114,7 +128,7 @@ Window {
             Image{
                 width:50;
                 fillMode: Image.PreserveAspectFit;
-                source:'file:/Users/mano233/Documents/c_projects/untitled3/arrow.svg'
+                source:'qrc:/arrow.svg'
             }
         }
 
