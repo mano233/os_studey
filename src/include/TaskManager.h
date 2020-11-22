@@ -4,40 +4,55 @@
 #include <list>
 #include <CycleQueue.h>
 #include <queue>
-#include <QObject>
-#include <QDir>
-#include <QTimer>
-#include <QString>
+#include <stack>
+#include <map>
+// #include <QObject>
+// #include <QDir>
+// #include <QTimer>
+// #include <QString>
+
+#define PCB_POOL_SIZE 255
+
 using namespace std;
 
+enum STATUS{
+    CREATE,
+    RUN,
+    BLOCK,
+    READY,
+    S_BLOCK,
+    S_READY,
+    DEAD,
+};
 struct PCB{
-    unsigned int      pid;        //线程id
+    int      pid;                 //线程id
     const    char*    name;       //线程名
     unsigned int      cpu_time;   //时间片
     unsigned int      time;
     unsigned int      p;          //优先级
+    STATUS state;                 //线程状态
 };
 
-class TaskManager: public QObject {
-Q_OBJECT
-signals:
-    void update();
+class TaskManager {
 public:
-    explicit TaskManager(QObject *parent = nullptr);
-    ~TaskManager() override;
+    explicit TaskManager();
+    ~TaskManager();
     void dispatch();
     void create(const char *name, unsigned int p, unsigned int cpu_time);
-    void destroy(unsigned pid);
-    void block(unsigned pid);
-    void ready(unsigned pid);
-    void wakeup(unsigned pid);
+    void destroy(unsigned _pid);
+    void block(unsigned _pid);
+    void ready(unsigned _pid);
+    void wakeup(unsigned _pid);
+    PCB getPcb();
+    map<int,PCB> *all_pcb;
+    list<PCB*> *ready_queue;
 private:
-    unsigned int pid;
-    list<PCB> all_pcb;
-    list<PCB> ready_queue;
-    queue<PCB> block_queue;
-    queue<PCB> dead_queue;
-    queue<PCB> wake_queue;
+    PCB popInQueue(queue<PCB> *queue,unsigned int _pid);
+    int pid=0;
+
+    queue<PCB*> *block_queue{};
+    queue<PCB*> *dead_queue;
+    queue<PCB*> *wake_queue{};
     PCB *current;
 private:
 

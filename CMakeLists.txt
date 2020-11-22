@@ -13,7 +13,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 include_directories(src/include)
-set(MOC_FILE src/include/ProdConsService2.h src/include/TaskManager.h)
+set(MOC_FILE
+        src/include/ProdConsService2.h
+#        src/include/TaskManager.h
+        )
 set(SRC_FILE
         main.cpp
         src/TaskManager.cpp
@@ -34,12 +37,18 @@ if (qt_version EQUAL 6)
             /
             FILES
             qml/shader/shader.frag
+            qml/shader/mask.frag
             )
     qt6_add_resources(${PROJECT_NAME} "untitled3"
             PREFIX
             /
             FILES
             qml/ProdconsService.qml
+            qml/mainwindow.qml
+            qml/qml01.qml
+            qml/qml02.qml
+            qml/qml03.qml
+            qml/Request.qml
             )
 else ()
     MESSAGE("use QT 5.15.1")
@@ -52,6 +61,10 @@ endif ()
 #add_executable(test test/Test.cpp)
 #add_executable(p test.cpp src/include/ProdConsService2.h src/ProdConsService2.cpp)
 #target_link_libraries(test gtest)
-#add_executable(tmp01 temp/tmp01.cpp src/TaskManager.cpp src/include/TaskManager.h)
+#add_compile_options(-x objective-c++)
+#set(CMAKE_EXE_LINKER_FLAGS "-framework Cocoa -framework AppKit -framework CoreData -framework Foundation")
+#add_executable(tmp02 main.mm)
+
+add_executable(tmp01 temp/tmp01.cpp src/TaskManager.cpp src/include/TaskManager.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${REQUIRED_LIBS_QUALIFIED})
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG)

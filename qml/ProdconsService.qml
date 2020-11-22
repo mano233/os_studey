@@ -11,10 +11,7 @@ Window {
     visible:true;
     width:720;
     height:640;
-    property var stop_prod_checked:false;
-    ProdConsService2 {
-        id: service;
-    }
+
     component Box_s:Rectangle{
         width: 50;height: 50;
         color: "white"
@@ -33,7 +30,7 @@ Window {
                         NumberAnimation {
                             properties: "opacity,y";
                             easing.type: Easing.InOutQuad;
-                            duration: 400;
+                            duration: 200;
                         }
                     },
                     Transition {
@@ -84,6 +81,7 @@ Window {
             anchors.bottomMargin:35;
             x:20;
             Text{
+                id:con_text
                 x:width+12;
                 y:-6;
                 text:'消费者';
@@ -108,6 +106,7 @@ Window {
             x:-20;
             anchors.top:parent.bottom;
             Text{
+                id:pro_text
                 x:-width;
                 y:20;
                 text:'生产者';
@@ -135,6 +134,18 @@ Window {
                     service.lock_producer();
                 }else{
                     service.unlock_producer();
+                }
+            }
+        }
+        Switch {
+            text: qsTr("锁定消费者")
+            onToggled:{
+                if(checked){
+                    conAnima.complete();
+                    
+                    service.lock_consumer();
+                }else{
+                    service.unlock_consumer();
                 }
             }
         }
@@ -167,31 +178,67 @@ Window {
         }
     }
 
-    Component.onCompleted:{
-        service.onFrontChanged.connect(onFrontChanged);
-        service.onRealChanged.connect(onRealChanged);
+    Text{
+        text:"生产者消费者动画模拟"
+        y:100
+        anchors.horizontalCenter: parent.horizontalCenter
+        
+        font{
+            family: "SF Pro Display"
+            pointSize: 32
+        }
+    }
+    ListModel {
+        id:contactModel
+    } 
+    Component {
+        id: contactDelegate
+        Item {
+            height:30
+            Text { text: str }
+        }
+    }
+    ListView {
+        id: list
+        x:300;
+        width: 180; height: parent.height
+        model: contactModel
+        delegate: contactDelegate
     }
 
-    // 消费时触发
-    function onFrontChanged(index){
-        let item = row.children[index];
-        let cir = item.children[0];
-        cir.state = 'hidden';
-        // let item = listView.itemAtIndex(index);
-        // item.children[0].state = 'hidden';
-        conAnima.to = item.x+25;
-        conAnima.start();
+    onClosing:{
+        service.quit();
     }
 
-    // 生产时触发
-    function onRealChanged(index){
-        let item = row.children[index];
-        let cir = item.children[0];
-        cir.state = 'show';
-        // let item = listView.itemAtIndex(index);
-        // item.children[0].state = 'show';
-        prodAnima.to = item.x-25;
-        prodAnima.start();
+    ProdConsService2 {
+        id: service
+        onLog:{
+            contactModel.append({str:str})
+        }
+        onReadyConsume:(index)=>{
+            let item = row.children[index];
+            conAnima.to = item.x+25;
+            con_text.text = "消费者(正在消费...)";
+            conAnima.start();
+        }
+        onConsumed:(index)=>{
+            let item = row.children[index];
+            let cir = item.children[0];
+            con_text.text = "消费者(正在等待...)";
+            cir.state = 'hidden';
+        }
+        onReadyProduce:(index)=>{
+            let item = row.children[index];
+            prodAnima.to = item.x-25;
+            pro_text.text="生产者(正在生产...)"
+            prodAnima.start();
+        }
+        onProduced:(index)=>{
+            let item = row.children[index];
+            let cir = item.children[0];
+            pro_text.text="生产者(正在等待...)"
+            cir.state = 'show';
+           
+        }
     }
-
 }
