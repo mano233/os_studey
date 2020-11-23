@@ -47,6 +47,7 @@ if (QT6)
             qml/shader/shader.frag
             qml/shader/mask.frag
             qml/shader/heart.frag
+            qml/shader/lighting.frag
             )
     qt6_add_resources(${PROJECT_NAME} "untitled3"
             PREFIX

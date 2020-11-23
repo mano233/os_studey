@@ -14,7 +14,7 @@ Window{
         id: effect
         anchors.fill: parent
         property real iTime: 0
-        fragmentShader: "qrc:/heart.frag.qsb"
+        fragmentShader: "qrc:/lighting.frag.qsb"
         Timer{
             running: true
             triggeredOnStart: true
@@ -26,7 +26,7 @@ Window{
         }
     }
     Text{
-        text:'ssss'
+        text:'demo'
         color:'red'
     }
 }

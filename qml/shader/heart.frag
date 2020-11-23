@@ -1,8 +1,12 @@
 #version 440
-layout(location=0) in float iTime;
-layout(location=1) in float width;
-layout(location=2) in float height;
-layout(location=3) in vec2 qt_TexCoord0;
+layout(std140, binding = 0) uniform buf {
+    mat4 qt_Matrix;
+    float qt_Opacity;
+    highp float  width;
+    highp float height;
+    highp float iTime;
+};
+layout(location = 0) in highp vec2 qt_TexCoord0;
 layout(location = 0) out vec4 fragColor;
 
 void main(void){
