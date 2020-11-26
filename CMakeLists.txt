@@ -3,6 +3,7 @@ project(demo)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 99)
 
 #add_subdirectory(./googletest)
 #include_directories(./googletest/googletest/include)
@@ -41,6 +42,8 @@ if (QT6)
             ${SRC_FILE}
             ${MOC_FILE})
     qt6_add_shaders(${PROJECT_NAME} "untitled3_shaders"
+            MSL "20"
+            PRECOMPILE
             PREFIX
             /
             FILES
@@ -65,10 +68,14 @@ if (QT6)
 else ()
     MESSAGE(STATUS "use QT5")
     option(QT5 "qt version 5" ON)
+    set(CMAKE_PREFIX_PATH "/Users/mano233/qt/5.15.1/clang_64/lib/cmake")
     set(REQUIRED_LIBS Core Gui Widgets Quick)
     set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Quick)
-    set(CMAKE_PREFIX_PATH "/Users/mano233/qt/5.15.1/clang_64/lib/cmake")
     find_package(Qt5 COMPONENTS ${REQUIRED_LIBS} REQUIRED)
+    add_executable(${PROJECT_NAME}
+            ${SRC_FILE}
+            ${MOC_FILE})
+
 endif ()
 
 #add_executable(test test/Test.cpp)
@@ -80,5 +87,6 @@ endif ()
 configure_file(option.h.in option.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(tmp01 temp/tmp01.cpp src/TaskManager.cpp src/include/TaskManager.h)
+add_executable(dynamicAllot src/MemoryPool.cpp src/MemoryPool.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${REQUIRED_LIBS_QUALIFIED})
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG)

@@ -13,15 +13,17 @@
 int main(int argc, char* argv[]){
 
 #ifdef QT6
-    //QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
+#ifdef WIN32
     QQuickWindow::setGraphicsApi(QSGRendererInterface::Direct3D11);
+#endif
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
 #endif
 #ifdef QT5
     // QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
 #endif
-
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
+
     // QProcess *process =  new QProcess(&app);
     // process->start("/Users/mano233/Documents/qt_projects/build-qt5_exam-Desktop_Qt_5_15_1_clang_64bit-Debug/qt5_exam");
     qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0, "ProdConsService2");

@@ -2,19 +2,19 @@
 layout(std140, binding = 0) uniform buf {
     mat4 qt_Matrix;
     float qt_Opacity;
-    highp float width;
-    highp float height;
-    highp float iTime;
+    float width;
+    float height;
+    float iTime;
+    vec3 iResolution;
 };
 #define t iTime
-#define r vec2(1,1)
-layout(location = 0) in highp vec2 fragCoord;
+#define r iResolution.xy
 layout(location = 0) out vec4 fragColor;
 void main() {
     vec3 c;
     float l,z=t;
     for(int i=0;i<3;i++) {
-        vec2 uv,p=fragCoord.xy/r;
+        vec2 uv,p=gl_FragCoord.xy/r/2;
         uv=p;
         p-=.5;
         p.x*=r.x/r.y;
@@ -25,3 +25,4 @@ void main() {
     }
     fragColor=vec4(c/l,t);
 }
+
