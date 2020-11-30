@@ -31,6 +31,7 @@ Window{
         // This item should be used as the 'mask'
         layer.samplerName: "maskSource"
         layer.effect: ShaderEffect {
+            blending:false
             property var colorSource: gradientRect;
             fragmentShader: "qrc:/mask.frag.qsb"
         }

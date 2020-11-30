@@ -8,7 +8,6 @@ layout(std140, binding = 0) uniform buf {
 layout(binding = 1) uniform sampler2D colorSource;
 layout(binding = 2) uniform sampler2D maskSource;
 void main() {
-    fragColor = texture(colorSource, qt_TexCoord0)
-    * texture(maskSource, qt_TexCoord0).a
+    fragColor = texture(colorSource, qt_TexCoord0)*texture(maskSource, qt_TexCoord0).a
     * qt_Opacity;
 }

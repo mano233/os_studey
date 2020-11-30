@@ -23,11 +23,11 @@ int main(int argc, char* argv[]){
 #endif
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-
+    
     // QProcess *process =  new QProcess(&app);
     // process->start("/Users/mano233/Documents/qt_projects/build-qt5_exam-Desktop_Qt_5_15_1_clang_64bit-Debug/qt5_exam");
     qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0, "ProdConsService2");
-    const QUrl url("qrc:/qml/qml04.qml");
+    const QUrl url("qrc:/qml/qml03.qml");
     // const QUrl url("qrc:/qml/ProdconsService.qml");
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
