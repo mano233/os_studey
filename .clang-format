@@ -1,0 +1,5 @@
+# 基于那个配置文件
+BasedOnStyle: Chromium
+#缩进宽度
+IndentWidth: 4
+NamespaceIndentation: All

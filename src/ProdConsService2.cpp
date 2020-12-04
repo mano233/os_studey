@@ -1,39 +1,43 @@
 #include "ProdConsService2.h"
 
-void consumer_worker(ProdConsService2 *ts) {
+void consumer_worker(ProdConsService2* ts) {
     while (!ts->_quit) {
-        this_thread::sleep_for(chrono::seconds (3));
+        this_thread::sleep_for(chrono::seconds(3));
         unique_lock<mutex> lck(ts->mtx);
-        ts->consume.wait(lck, [&] { return !ts->stop_consumer && !ts->q->isEmpty(); });
+        ts->consume.wait(
+            lck, [&] { return !ts->stop_consumer && !ts->q->isEmpty(); });
         cout << "consumer " << this_thread::get_id() << ": " << endl;
         int index = ts->q->m_front;
         emit ts->readyConsume(index);
-        this_thread::sleep_for(chrono::milliseconds (1000));
+        this_thread::sleep_for(chrono::milliseconds(1000));
         ts->q->pop();
         emit ts->consumed(index);
         ts->produce.notify_all();
     }
 }
 
-void producer_worker(ProdConsService2 *ts, int id) {
+void producer_worker(ProdConsService2* ts, int id) {
     while (!ts->_quit) {
-        this_thread::sleep_for(chrono::seconds (1));
+        this_thread::sleep_for(chrono::seconds(1));
         unique_lock lck(ts->mtx);
-        ts->produce.wait(lck, [&] { return !ts->stop_producer && !ts->q->isFull(); });
-        // cout << "-> producer " << this_thread::get_id() << ": " << "  front:" << ts->q->m_front << "rear:"
+        ts->produce.wait(
+            lck, [&] { return !ts->stop_producer && !ts->q->isFull(); });
+        // cout << "-> producer " << this_thread::get_id() << ": " << "  front:"
+        // << ts->q->m_front << "rear:"
         //      << ts->q->m_rear
         //      << endl;
-        cout << "-> producer " << this_thread::get_id()<<"size:"<<ts->q->size()<<endl;
+        cout << "-> producer " << this_thread::get_id()
+             << "size:" << ts->q->size() << endl;
         int index = ts->q->m_rear;
         emit ts->readyProduce(index);
         ts->q->push(id);
-        this_thread::sleep_for(chrono::milliseconds (1000));
+        this_thread::sleep_for(chrono::milliseconds(1000));
         emit ts->produced(index);
         ts->consume.notify_all();
     }
 }
 
-ProdConsService2::ProdConsService2(QObject *parent) : QObject(parent) {
+ProdConsService2::ProdConsService2(QObject* parent) : QObject(parent) {
     q = new CycleQueue<int>(maxSize);
     mtx.lock();
 }
@@ -62,7 +66,7 @@ void ProdConsService2::unlock_consumer() {
 }
 
 void ProdConsService2::start() {
-    if(isStart){
+    if (isStart) {
         return;
     }
     isStart = true;
@@ -80,5 +84,3 @@ void ProdConsService2::start() {
 void ProdConsService2::quit() {
     _quit = true;
 }
-
-

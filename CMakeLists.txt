@@ -22,6 +22,7 @@ set(MOC_FILE
 set(SRC_FILE
         main.cpp
         src/TaskManager.cpp
+		src/MemAllocator2.cpp
         src/ProdConsService2.cpp)
 
 option(QT6 "qt version 6" ON)
