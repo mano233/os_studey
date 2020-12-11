@@ -14,7 +14,6 @@
 #include "CycleQueue.h"
 
 using namespace std;
-
 class ProdConsService2 : public QObject {
 Q_OBJECT
     friend void consumer_worker(ProdConsService2 *ts);

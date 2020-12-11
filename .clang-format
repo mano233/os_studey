@@ -3,3 +3,21 @@ BasedOnStyle: Chromium
 #缩进宽度
 IndentWidth: 4
 NamespaceIndentation: All
+
+# int aaaa = 12;
+# int b    = 23;
+# int ccc  = 23;
+AlignConsecutiveAssignments: true
+
+# #define SHORT_NAME       42
+# #define LONGER_NAME      0x007f
+# #define EVEN_LONGER_NAME (2)
+# #define foo(x)           (x * x)
+# #define bar(y, z)        (y + z)
+AlignConsecutiveMacros: true
+
+
+# true:                                   false:
+# int a;     // My comment a      vs.     int a; // My comment a
+# int b = 2; // comment  b                int b = 2; // comment about b
+AlignTrailingComments: true

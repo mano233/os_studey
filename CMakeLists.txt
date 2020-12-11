@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(demo)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_COMPILER /Users/mano233/Documents/dev_tool/llvm-11.0.0/bin/clang)
+set(CMAKE_CXX_COMPILER /Users/mano233/Documents/dev_tool/llvm-11.0.0/bin/clang++)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 99)
 
 #add_subdirectory(./googletest)
@@ -12,17 +15,24 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(FLAGS  "-Wunused-variable -Wno-infinite-recursion -Werror=implicit-function-declaration -Wshadow -Wno-shadow-field-in-constructor-modified -Wno-shadow-ivar -Wuninitialized -Wunused-label -Wunused-lambda-capture")
 
 include_directories(src/include)
 
+set(CMAKE_C_FLAGS ${FLAGS})
+
+set(CMAKE_CXX_FLAGS ${FLAGS})
+
 set(MOC_FILE
         src/include/ProdConsService2.h
-        #        src/include/TaskManager.h
+        src/include/DynamicAlloc.h
         )
 set(SRC_FILE
         main.cpp
         src/TaskManager.cpp
-		src/MemAllocator2.cpp
+        src/malloc/memlib.c
+        src/malloc/mm.c
+        src/DynamicAlloc.cpp
         src/ProdConsService2.cpp)
 
 option(QT6 "qt version 6" ON)
@@ -64,6 +74,7 @@ if (QT6)
             qml/qml03.qml
             qml/qml04.qml
             qml/Request.qml
+			qml/DynamicAlloc.qml
             arrow.svg
             )
 else ()
@@ -88,6 +99,5 @@ endif ()
 configure_file(option.h.in option.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(tmp01 temp/tmp01.cpp src/TaskManager.cpp src/include/TaskManager.h)
-add_executable(dynamicAllot src/MemoryAllocator.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${REQUIRED_LIBS_QUALIFIED})
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG)

@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-
+#include <utility>
 namespace Mem {
     /**
      * Machine word size. Depending on the architecture,
@@ -110,11 +110,13 @@ namespace Mem {
         size = align(size);
 
         // 1. Search for an available free block:
+        // 1.搜索一个可用的block
         if (auto* block = findBlock(size)) {  // (1)
             return block->data;
         }
 
         // 2. If block not found in the free list, request from OS:
+        // 2.如果在空闲链表找不到一个可用的block，则从系统中请求
         auto* block = requestFromOS(size);
 
         block->size = size;
@@ -135,7 +137,6 @@ namespace Mem {
         // User payload:
         return block->data;
     }
-
 
     /**
      * Returns the object header.
@@ -193,12 +194,12 @@ using namespace Mem;
 int main(int argc, char const* argv[]) {
     // Test case 1: Alignment
     // A request for 3 bytes is aligned to 8.
-    auto* p1 = alloc(3);  // (1)
+    auto* p1  = alloc(3);  // (1)
     auto* p1b = getHeader(p1);
     assert(p1b->size == sizeof(word_t));
 
     // Test case 2: Exact amount of aligned bytes
-    auto* p2 = alloc(8);  // (2)
+    auto* p2  = alloc(8);  // (2)
     auto* p2b = getHeader(p2);
     assert(p2b->size == 8);
 
@@ -209,7 +210,7 @@ int main(int argc, char const* argv[]) {
     // Test case 4: The block is reused
     // A consequent allocation of the same size reuses
     // the previously freed block.
-    auto* p3 = alloc(8);
+    auto* p3  = alloc(8);
     auto* p3b = getHeader(p3);
     assert(p3b->size == 8);
     assert(p3b == p2b);  // Reused!
