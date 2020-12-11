@@ -4,10 +4,6 @@
 #include <QtCore/QUrl>
 #include <QtGui/QGuiApplication>
 #include <QtNetwork>
-#include <QtQml/QQmlComponent>
-#include <QtQuick/QQuickWindow>
-#include <Qtqml>
-#include "ProdConsService2.h"
 #include "option.h"
 #include "DynamicAlloc.h"
 
