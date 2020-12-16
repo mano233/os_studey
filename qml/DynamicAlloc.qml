@@ -1,57 +1,87 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
+import QtQuick.Layouts
 import com.mano233.DynamicAlloc
 
 Window {
     function updateModel() {
-		model.clear()
+        model.clear();
         let list = alloctor.get_list();
         for (let i = 0; i < list.length; i++) {
             let _size = list[i].size;
             let _alloc = list[i].alloc;
+            let _id = list[i].id;
             model.append({
                 "_alloc": _alloc,
                 "_size": _size,
+                "_id": _id?_id:""
             });
-		}
+        }
     }
 
     visible: true
     height: 400
     width: 400
-	Component.onCompleted: {
-		updateModel()
+    Component.onCompleted: {
+        updateModel();
     }
 
     DynamicAlloc {
         id: alloctor
     }
-	
+
     ListModel {
         id: model
     }
 
-    Row {
-        Column {
-            Row {
+	RowLayout {
+		ColumnLayout {
+			Layout.alignment:Qt.AlignTop
+            RowLayout {
+                Label {
+                    text: "size:"
+                }
+
                 SpinBox {
-                    // focusPolicy:Qt.ClickFocus
-
                     id: inp_size
-
                     editable: true
                     value: 0
-                    to: 256
+                    to: 256000
                     from: 8
+				}
+				Label{
+					text:inp_size.value<=8?2*8:8*(parseInt((inp_size.value+15)/8))
+				}
+
+				Label {
+                    text: "id:"
+                }
+
+                TextField {
+                    id: inp_id
+
+                    placeholderText: qsTr("Enter id")
                 }
 
                 Button {
-                    text: 'enter'
+                    text: 'malloc'
                     onClicked: {
 						inp_size.focus = false
-						alloctor.malloc(inp_size.value)
-						updateModel()
+						inp_id.focus = false
+                        alloctor.malloc(inp_id.text, inp_size.value)
+                        inp_id.text = ""
+                        updateModel()
+                    }
+				}
+
+                Button {
+                    text: 'free'
+                    onClicked: {
+                        inp_size.focus = false
+                        alloctor.free(inp_id.text)
+                        inp_id.text = ""
+                        updateModel()
                     }
                 }
 
@@ -89,12 +119,11 @@ Window {
 
         ListView {
             model: model
-			width: 100
-			height:400
-            clip:true
+            width: 100
+            height: 400
+            clip: true
             flickableDirection: Flickable.AutoFlickDirection
             spacing: 2
-
             delegate: Rectangle {
                 width: 100
                 height: _size
@@ -105,7 +134,7 @@ Window {
                 Text {
                     visible: parent.height >= 12
                     anchors.centerIn: parent
-                    text: 'size:' + _size
+                    text: _id?("id:"+_id+"size:"+_size):("size"+_size)
                 }
 
             }

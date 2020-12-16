@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #define MAX_HEAP 4194304
 /* private global variables */
 char* mem_heap;

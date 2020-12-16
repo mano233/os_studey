@@ -1,11 +1,12 @@
-#include <QDebug>
 #include <QLoggingCategory>
 #include <QProcess>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
 #include <QtCore/QUrl>
 #include <QtGui/QGuiApplication>
 #include <QtNetwork>
-#include "option.h"
 #include "DynamicAlloc.h"
+#include "option.h"
 
 int main(int argc, char* argv[]) {
 #ifdef QT6
@@ -21,8 +22,8 @@ int main(int argc, char* argv[]) {
     QQmlApplicationEngine engine;
     // QProcess *process =  new QProcess(&app);
     // process->start("/Users/mano233/Documents/qt_projects/build-qt5_exam-Desktop_Qt_5_15_1_clang_64bit-Debug/qt5_exam");
-    qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0,
-                                      "ProdConsService2");
+    // qmlRegisterType<ProdConsService2>("com.mano.ProdConsService2", 1, 0,
+    //                                   "ProdConsService2");
     qmlRegisterType<DynamicAlloc>("com.mano233.DynamicAlloc",1,0,"DynamicAlloc");
     const QUrl url("qrc:/qml/DynamicAlloc.qml");
     // const QUrl url("qrc:/qml/ProdconsService.qml");
@@ -34,7 +35,6 @@ int main(int argc, char* argv[]) {
         },
         Qt::QueuedConnection);
     mm_init();
-    mem_malloc(4);
     engine.load(url);
     // QLoggingCategory::setFilterRules("qt.scenegraph.time.renderloop=true");
     return QGuiApplication::exec();

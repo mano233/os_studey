@@ -1,7 +1,3 @@
-//
-// Created by mano233 on 2020/12/10.
-//
-
 #include "DynamicAlloc.h"
 #define WSIZE             4
 #define DSIZE             8
@@ -16,17 +12,42 @@
 #define NEXT_BLKP(bp)     ((char*)(bp) + GET_SIZE(((char*)(bp)-WSIZE)))
 #define PREV_BLKP(bp)     ((char*)(bp)-GET_SIZE(((char*)(bp)-DSIZE)))
 
+static QMap<void*, QString> malloc_map_vs;
+static QMap<QString, void*> malloc_map_sv;
+
 QVariantList DynamicAlloc::get_list() {
-    list.clear();
-    traversal([](void* bp) {
-        int size        = GET_SIZE(HDRP(bp));
-        QVariantMap map = {{"size", size}, {"alloc", GET_ALLOC(HDRP(bp))}};
-        list.append(map);
-    });
-    return list;
-}
-void DynamicAlloc::malloc(const QString& id, size_t size) {
-    if (!malloc_map.contains(id)){
-        malloc_map.insert(id,mem_malloc(size));
+    QVariantList list_all;
+    for (void* bp = NEXT_BLKP(heap_listp); GET_SIZE(HDRP(bp)) > 0;
+         bp       = NEXT_BLKP(bp)) {
+        int size = GET_SIZE(HDRP(bp));
+        QVariantMap map;
+        if (GET_ALLOC(HDRP(bp))) {
+            map = {{"size", size},
+                   {"alloc", GET_ALLOC(HDRP(bp))},
+                   {"id", malloc_map_vs[bp]}};
+        } else {
+            map = {{"size", size}, {"alloc", GET_ALLOC(HDRP(bp))}};
+        }
+        list_all.append(map);
     }
+    return list_all;
+}
+
+void DynamicAlloc::malloc(QString id, size_t size) {
+    if (malloc_map_sv.contains(id)){
+        return;
+    }
+    void* memptr = mem_malloc(size);
+    malloc_map_vs.insert(memptr, id);
+    malloc_map_sv.insert(id, memptr);
+}
+
+void DynamicAlloc::free(QString id) {
+    if(!malloc_map_sv.contains(id)){
+		return;
+    }
+	void* memptr = malloc_map_sv[id];
+    mm_free(memptr);
+    malloc_map_sv.remove(id);
+    malloc_map_vs.remove(memptr);
 }

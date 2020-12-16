@@ -30,8 +30,8 @@ set(MOC_FILE
 set(SRC_FILE
         main.cpp
         src/TaskManager.cpp
-        src/malloc/memlib.c
-        src/malloc/mm.c
+        src/malloc/memlib.cpp
+        src/malloc/mm.cpp
         src/DynamicAlloc.cpp
         src/ProdConsService2.cpp)
 
@@ -98,7 +98,5 @@ endif ()
 #add_executable(tmp02 main.mm)
 configure_file(option.h.in option.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_executable(tmp01 temp/tmp01.cpp src/TaskManager.cpp src/include/TaskManager.h)
-add_executable(dynamicAllot src/MemoryAllocator.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${REQUIRED_LIBS_QUALIFIED})
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_QML_DEBUG)
