@@ -88,11 +88,15 @@ Window {
             }
 
             ButtonGroup {
-                id: radioGroup
+				id: radioGroup
+				onClicked:{
+					alloctor.setFitFun(button.value)
+				}
             }
 
             Column {
-                RadioButton {
+				RadioButton {
+					property int value:0
                     text: '首次适应算法'
                     checked: true
                     ButtonGroup.group: radioGroup
@@ -100,15 +104,18 @@ Window {
 
                 RadioButton {
                     text: '循环首次适应算法'
+					property int value:1
                     ButtonGroup.group: radioGroup
                 }
 
                 RadioButton {
                     text: '最佳适应算法'
+					property int value:2
                     ButtonGroup.group: radioGroup
                 }
 
                 RadioButton {
+					property int value:3
                     text: '最坏适应算法'
                     ButtonGroup.group: radioGroup
                 }

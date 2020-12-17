@@ -14,7 +14,7 @@
 
 static QMap<void*, QString> malloc_map_vs;
 static QMap<QString, void*> malloc_map_sv;
-
+extern void set_fit_fun(int type);
 QVariantList DynamicAlloc::get_list() {
     QVariantList list_all;
     for (void* bp = NEXT_BLKP(heap_listp); GET_SIZE(HDRP(bp)) > 0;
@@ -31,6 +31,10 @@ QVariantList DynamicAlloc::get_list() {
         list_all.append(map);
     }
     return list_all;
+}
+
+void DynamicAlloc::setFitFun(int type){
+	set_fit_fun(type);
 }
 
 void DynamicAlloc::malloc(QString id, size_t size) {

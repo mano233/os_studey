@@ -20,6 +20,7 @@ class DynamicAlloc : public QObject {
     Q_INVOKABLE static void malloc(QString id,size_t size);
     Q_INVOKABLE static void free(QString id);
     Q_INVOKABLE static QVariantList get_list();
+	Q_INVOKABLE static void setFitFun(int type);
 };
 
 #endif  // DEMO_DYNAMICALLOC_H

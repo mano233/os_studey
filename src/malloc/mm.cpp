@@ -17,9 +17,9 @@
 
 extern void* mem_sbrk(int);
 
-char* heap_listp;
+char* heap_listp = nullptr;
 
-char* last_findp;
+char* last_findp = nullptr;
 
 static void* extend_heap(size_t);
 
@@ -37,7 +37,7 @@ extern void mem_init();
 enum FIT_FUN { ff_fit = 0, nf_fit = 1, bf_fit = 2, wf_fit = 3 };
 
 /* 枚举对象,默认适配方式为FF */
-static FIT_FUN fit_fun = ff_fit;
+static FIT_FUN fit_fun = nf_fit;
 
 /**
  *
@@ -66,7 +66,7 @@ static FIT_FUN fit_fun = ff_fit;
  * block size总是字节对齐的（8的倍数）后三位总是为0,因此使用后3位保存其他信息
  * 这里用于保存alloc bit（000表示空闲，001表示已分配）
  *
- * @return
+ * @return 
  */
 int mm_init() {
     // 初始化内存模型
@@ -87,8 +87,8 @@ int mm_init() {
 
 /**
  * 扩展堆内存
- * @param words
- * @return
+ * @param words 要扩展的大小
+ * @return 返回经过边界合并之后的位置
  */
 static void* extend_heap(size_t words) {
     char* bp;
@@ -106,7 +106,7 @@ static void* extend_heap(size_t words) {
 /**
  * 对内存块进行边界合并
  * @param bp 要操作的内存块
- * @return
+ * @return bp 操作的内存块
  */
 static void* coalesce(void* bp) {
     size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));
@@ -131,24 +131,37 @@ static void* coalesce(void* bp) {
     }
     return bp;
 }
-// TODO: 完成循环首次适应算法
-static void* nf_fit_fun(size_t asize){
-	char* bp = last_findp;
-    // 遍历所有内存块
-    for (bp = last_findp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
-        // 找到一个空闲块且大小<=asize
-		if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
-			last_findp = PREV_BLKP(bp);
+/**
+ * 循环首次适应算法
+ * 记录上次分配到的位置，从改位置继续往后寻找适配块
+ * 如果最后没有找到则从堆的头部寻找到上次分配的位置之前
+ */
+static void* nf_fit_fun(size_t asize) {
+	// 从上次找到的位置开始
+    for (char* bp = last_findp != nullptr ? last_findp : heap_listp;
+         GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
+        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            last_findp = bp;
+            return bp;
         }
     }
 
-	return nullptr;
+	// 如果从上次的位置继续向后寻找依然无法适配，则从头部开始扫描
+    for (char* bp = heap_listp; GET_SIZE(HDRP(bp)) > 0 && bp != last_findp;
+         bp       = NEXT_BLKP(bp)) {
+        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            last_findp = bp;
+            return bp;
+        }
+    }
+	// 依然找不到则返回nullptr
+    return nullptr;
 }
+
 static void* wf_fit_fun(size_t asize) {
     std::list<void*> bp_list;
-    void* bp;
-    // 遍历所有内存块
-    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
+    // 构造空闲表
+    for (void* bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
             bp_list.push_back(bp);
         }
@@ -156,16 +169,23 @@ static void* wf_fit_fun(size_t asize) {
     if (bp_list.empty()) {
         return nullptr;
     }
-	// 将内存块按照大小从大到小排序
+    // 将内存块按照大小从大到小排序
     bp_list.sort([](const void* a, const void* b) {
         return GET_SIZE(HDRP(a)) - GET_SIZE(HDRP(b));
     });
-    bp = bp_list.front();
-    if (GET_SIZE(HDRP(bp)) >= asize) {
-        return bp;
-    }
+	std::list<void*>::const_iterator i;
+	for(i=bp_list.begin();i!=bp_list.end();i++){
+		if(asize<=GET_SIZE(HDRP(*i))){
+			return *i;
+		}
+	}
     return nullptr;
 }
+
+/**
+ * 首次适应算法
+ * 从头遍历，直至找到一个大小符合的内存块，否则返回nullptr
+ */
 static void* ff_fit_fun(size_t asize) {
     for (void* bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
@@ -180,7 +200,7 @@ static void* find_fit(size_t asize) {
         case ff_fit:
             return ff_fit_fun(asize);
         case nf_fit:
-			return nullptr;
+            return nf_fit_fun(asize);
         case bf_fit:
             return nullptr;
         case wf_fit:
@@ -209,7 +229,7 @@ static void place(void* bp, size_t asize) {
     }
 }
 
-inline void set_fit_fun(int type) {
+void set_fit_fun(int type) {
     switch (type) {
         case 0:
             fit_fun = ff_fit;
@@ -226,9 +246,8 @@ inline void set_fit_fun(int type) {
 }
 
 void* mem_malloc(size_t size) {
-    size_t asize;
-    size_t extendsize;
-    char* bp = nullptr;
+    size_t asize,extendsize;
+    char* bp;
     if (size == 0) {
         return nullptr;
     }
