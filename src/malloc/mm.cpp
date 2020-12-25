@@ -37,7 +37,7 @@ extern void mem_init();
 enum FIT_FUN { ff_fit = 0, nf_fit = 1, bf_fit = 2, wf_fit = 3 };
 
 /* 枚举对象,默认适配方式为FF */
-static FIT_FUN fit_fun = nf_fit;
+static FIT_FUN fit_fun = ff_fit;
 
 /**
  *
@@ -66,7 +66,7 @@ static FIT_FUN fit_fun = nf_fit;
  * block size总是字节对齐的（8的倍数）后三位总是为0,因此使用后3位保存其他信息
  * 这里用于保存alloc bit（000表示空闲，001表示已分配）
  *
- * @return 
+ * @return
  */
 int mm_init() {
     // 初始化内存模型
@@ -137,7 +137,7 @@ static void* coalesce(void* bp) {
  * 如果最后没有找到则从堆的头部寻找到上次分配的位置之前
  */
 static void* nf_fit_fun(size_t asize) {
-	// 从上次找到的位置开始
+    // 从上次找到的位置开始
     for (char* bp = last_findp != nullptr ? last_findp : heap_listp;
          GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
@@ -146,7 +146,7 @@ static void* nf_fit_fun(size_t asize) {
         }
     }
 
-	// 如果从上次的位置继续向后寻找依然无法适配，则从头部开始扫描
+    // 如果从上次的位置继续向后寻找依然无法适配，则从头部开始扫描
     for (char* bp = heap_listp; GET_SIZE(HDRP(bp)) > 0 && bp != last_findp;
          bp       = NEXT_BLKP(bp)) {
         if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
@@ -154,7 +154,7 @@ static void* nf_fit_fun(size_t asize) {
             return bp;
         }
     }
-	// 依然找不到则返回nullptr
+    // 依然找不到则返回nullptr
     return nullptr;
 }
 
@@ -173,12 +173,36 @@ static void* wf_fit_fun(size_t asize) {
     bp_list.sort([](const void* a, const void* b) {
         return GET_SIZE(HDRP(a)) - GET_SIZE(HDRP(b));
     });
-	std::list<void*>::const_iterator i;
-	for(i=bp_list.begin();i!=bp_list.end();i++){
-		if(asize<=GET_SIZE(HDRP(*i))){
-			return *i;
-		}
-	}
+    std::list<void*>::const_iterator i;
+    for (i = bp_list.begin(); i != bp_list.end(); i++) {
+        if (asize <= GET_SIZE(HDRP(*i))) {
+            return *i;
+        }
+    }
+    return nullptr;
+}
+
+static void* bf_fit_fun(size_t asize) {
+    std::list<void*> bp_list;
+    // 构造空闲表
+    for (void* bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
+        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+            bp_list.push_back(bp);
+        }
+    }
+    if (bp_list.empty()) {
+        return nullptr;
+    }
+    // 将内存块按照大小从小到大排序
+    bp_list.sort([](const void* a, const void* b) {
+      return GET_SIZE(HDRP(b)) - GET_SIZE(HDRP(a));
+    });
+    std::list<void*>::const_iterator i;
+    for (i = bp_list.begin(); i != bp_list.end(); i++) {
+        if (asize <= GET_SIZE(HDRP(*i))) {
+            return *i;
+        }
+    }
     return nullptr;
 }
 
@@ -202,7 +226,7 @@ static void* find_fit(size_t asize) {
         case nf_fit:
             return nf_fit_fun(asize);
         case bf_fit:
-            return nullptr;
+            return bf_fit_fun(asize);
         case wf_fit:
             return wf_fit_fun(asize);
         default:
@@ -241,12 +265,12 @@ void set_fit_fun(int type) {
             fit_fun = bf_fit;
             return;
         default:
-            fit_fun = ff_fit;
+            fit_fun = wf_fit;
     }
 }
 
 void* mem_malloc(size_t size) {
-    size_t asize,extendsize;
+    size_t asize, extendsize;
     char* bp;
     if (size == 0) {
         return nullptr;

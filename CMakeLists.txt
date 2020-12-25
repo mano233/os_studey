@@ -44,7 +44,8 @@ if (QT6)
         set(CMAKE_PREFIX_PATH "E:\\toolchain\\qt\\6.0.0\\mingw81_64\\lib\\cmake")
     ELSEIF (APPLE)
         MESSAGE(STATUS "Now is Apple systens.")
-        set(CMAKE_PREFIX_PATH "/Users/mano233/qt/6.0.0/clang_64/lib/cmake")
+#        set(CMAKE_PREFIX_PATH "/Users/mano233/qt/6.0.0/clang_64/lib/cmake")
+        set(CMAKE_PREFIX_PATH "/Users/mano233/Documents/GitHub/qt5/qt6-build/install/lib/cmake")
     ENDIF ()
     set(REQUIRED_LIBS Core Gui Widgets Quick QuickControls2 ShaderTools)
     set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Quick Qt6::QuickControls2)
@@ -74,7 +75,7 @@ if (QT6)
             qml/qml03.qml
             qml/qml04.qml
             qml/Request.qml
-			qml/DynamicAlloc.qml
+            qml/DynamicAlloc.qml
             arrow.svg
             )
 else ()

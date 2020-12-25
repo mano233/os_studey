@@ -11,7 +11,13 @@
 #define FTRP(bp)          ((char*)(bp) + GET_SIZE(HDRP(bp)) - DSIZE)
 #define NEXT_BLKP(bp)     ((char*)(bp) + GET_SIZE(((char*)(bp)-WSIZE)))
 #define PREV_BLKP(bp)     ((char*)(bp)-GET_SIZE(((char*)(bp)-DSIZE)))
-
+template <typename I> std::string n2hexstr(I w, size_t hex_len = sizeof(I)<<1) {
+    static const char* digits = "0123456789ABCDEF";
+    std::string rc(hex_len,'0');
+    for (size_t i=0, j=(hex_len-1)*4 ; i<hex_len; ++i,j-=4)
+        rc[i] = digits[(w>>j) & 0x0f];
+    return rc;
+}
 static QMap<void*, QString> malloc_map_vs;
 static QMap<QString, void*> malloc_map_sv;
 extern void set_fit_fun(int type);
@@ -21,8 +27,10 @@ QVariantList DynamicAlloc::get_list() {
          bp       = NEXT_BLKP(bp)) {
         int size = GET_SIZE(HDRP(bp));
         QVariantMap map;
+        QString string(n2hexstr<long>((long)bp).c_str());
         if (GET_ALLOC(HDRP(bp))) {
             map = {{"size", size},
+                   {"addr",string},
                    {"alloc", GET_ALLOC(HDRP(bp))},
                    {"id", malloc_map_vs[bp]}};
         } else {
